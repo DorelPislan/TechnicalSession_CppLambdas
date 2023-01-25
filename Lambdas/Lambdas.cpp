@@ -5,9 +5,10 @@
 #include <functional>
 #include <vector>
 #include <span>
+#include <algorithm>
 
 using namespace std;
-
+/*
 class Button {
 public:
     Button(std::function<void(void)> click) : handler_{ click } {}
@@ -38,6 +39,7 @@ void lambdas_with_buttons()
     buttons.front().on_click(); // counter has been incremented
 }
 
+*/
 void nesting_lambda_expressions()
 {
     // The following lambda expression contains a nested lambda
@@ -57,7 +59,7 @@ void higher_order_lambda_expression()
     // The following code declares a lambda expression that returns
    // another lambda expression that adds two numbers.
    // The returned lambda expression captures parameter x by value.
-    auto addtwointegers = [](int x) -> function<int(int)> {
+    auto addtwointegers = [](int x) -> std::function<int(int)> {
         return [=](int y) { return x + y; };
     };
 
@@ -76,6 +78,8 @@ void higher_order_lambda_expression()
     cout << answer << endl;
 }
 
+
+//------------------------------------------------------------
 void Print(std::span<int, std::dynamic_extent> aSpan)
 {
     cout << "Container is: ";
@@ -89,12 +93,26 @@ void Print(std::span<int, std::dynamic_extent> aSpan)
 template<class... Args>
 std::vector<int> variadicFcn(Args... args)
 {
-    auto x = [args...] { return std::vector<int>{ args... }; };
-    auto container = x();
+    auto coolLambda = [args...] { return std::vector<int>{ args... }; };
+
+    auto container = coolLambda();
+
     Print(container);
 
+    return container;
 }
 
+bool SomeFunction(int a1, int a2, std::function<bool(int, int)> aFcn)
+{
+    return aFcn(a1, a2);
+}
+
+string OldStyleFcn(const char* aStr1,
+                   const char* aStr2,
+                   string (*aFcnPointer)(const char* aStr1, const char* aStr2) )
+{
+    return aFcnPointer(aStr1, aStr2);
+}
 
 void size_of_lmbda()
 {
@@ -157,6 +175,7 @@ int main()
         x++;
     };
     mutableLambda();
+    mutableLambda();
 
     cout << endl;
 
@@ -174,15 +193,45 @@ int main()
     //variadicFunction
     variadicFcn(2, 3, 4);
 
+    auto veryModernLambda = []<typename SomeType>(SomeType aVal) { return aVal + 1; };
+    auto result = veryModernLambda(24);
+    cout << "veryModernLambda() returned: " << result << endl;
+
+    {
+        std::vector<int>  ages{ 23, 18, 35, 90, 38, 43 };
+
+        auto youngsters = std::ranges::count_if(ages, [](auto aAge) { return aAge < 50; });
+
+        cout << "we have detected " << youngsters << " youngsters" << endl;
+    }
+
+    std::function<bool(int, int)> myLessThan = [](int aFirst, int aSecond) { return aFirst < aSecond; };
+    auto copyOfLessThan = myLessThan;
+
+    auto res2 = SomeFunction(2, 4, copyOfLessThan);
+    cout << "LessThan (2, 4) = " << res2 << endl;
+
+    auto res3 = SomeFunction(6, 4, copyOfLessThan);
+    cout << "LessThan (6, 4) = " << res3 << endl;
 
 
+    //LamdaAsPointerToFunction
+    auto lambdaAsPointer = [](const char* aStr1, const char* aStr2) -> string 
+    {
+        string res = aStr1;
+        res += "+";
+        res += aStr2;
+
+        return res;
+    };
+
+    auto res4 = OldStyleFcn("Str1", "Str2", lambdaAsPointer);
+    cout << "OldStyleFcn() returned:" << res4 << endl;
 
 
 
     cout << endl << endl;
-
-    lambdas_with_buttons();
-
+        
 
     std::cout << endl;
     nesting_lambda_expressions();
