@@ -4,6 +4,7 @@
 #include <iostream>
 #include <functional>
 #include <vector>
+#include <span>
 
 using namespace std;
 
@@ -75,10 +76,31 @@ void higher_order_lambda_expression()
     cout << answer << endl;
 }
 
+void Print(std::span<int, std::dynamic_extent> aSpan)
+{
+    cout << "Container is: ";
+    for (auto i : aSpan)
+    {
+        cout << i << " ";
+    }
+    cout << endl;
+}
+
+template<class... Args>
+std::vector<int> variadicFcn(Args... args)
+{
+    auto x = [args...] { return std::vector<int>{ args... }; };
+    auto container = x();
+    Print(container);
+
+}
+
+
 void size_of_lmbda()
 {
     auto noCapture = []()
     {
+        cout << " Lambda with no captures and no parameters" << endl;
         return 23;
     };
     noCapture();
@@ -92,9 +114,72 @@ void size_of_lmbda()
     };
     std::cout << "Sizeof( someCapture ) is:" << sizeof(someCapture) << endl;
 }
+
 int main()
 {
-    std::cout << "Staring demo with C++ LAMBDAS!\n";
+    std::cout << "Staring demo with C++ LAMBDAS!\n" << endl;
+
+    //simplest lambda
+    auto simplestLambda = []()
+    { 
+        static int k = 0;
+        cout << "Hello from simplest Lambda  K=" << k++ << endl;
+    };
+    simplestLambda();
+    simplestLambda();
+
+    //capture by value
+    int x = 10, y = 12, z = 67;
+
+    auto captureByVal = [=]() {
+        int res = x * y;
+        cout << "captureByVal(): X * Y = " << res << endl;
+    };
+    x = 20;
+    captureByVal();
+
+    cout << endl;
+
+    //capture by reference
+    auto captureByRef = [&]() {
+        int res = x * y;
+        cout << "captureByRef(): X * Y = " << res << endl;
+    };
+    y = 30;
+    captureByRef();
+
+    cout << endl;
+
+    //mutableLambda
+    auto mutableLambda = [x = 8]() mutable
+    {
+        cout << "in mutableLambda() X = " << x << endl;
+        x++;
+    };
+    mutableLambda();
+
+    cout << endl;
+
+    //deduced returnedType
+    auto deducedReturnedRype = []()  /* ->float */
+    {
+        int x = 78;
+        cout << "deducedReturnedRype() will return: " << x << endl;
+        return x;
+    };
+    int res = deducedReturnedRype(); res;
+
+    cout << endl;
+
+    //variadicFunction
+    variadicFcn(2, 3, 4);
+
+
+
+
+
+
+    cout << endl << endl;
 
     lambdas_with_buttons();
 
