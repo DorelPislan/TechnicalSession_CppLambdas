@@ -205,7 +205,7 @@ int main()
         cout << "we have detected " << youngsters << " youngsters" << endl;
     }
 
-    std::function<bool(int, int)> myLessThan = [](int aFirst, int aSecond) { return aFirst < aSecond; };
+    std::function<bool(int, int)> myLessThan = [](auto aFirst, auto aSecond) { return aFirst < aSecond; };
     auto copyOfLessThan = myLessThan;
 
     auto res2 = SomeFunction(2, 4, copyOfLessThan);
