@@ -158,7 +158,7 @@ int main()
 
     cout << endl;
 
-    //capture by reference
+    //capture by reference /////////////////////////////////////////////////
     auto captureByRef = [&]() {
         int res = x * y;
         cout << "captureByRef(): X * Y = " << res << endl;
@@ -166,7 +166,28 @@ int main()
     y = 30;
     captureByRef();
 
+    //object generated for captureByRef lambda
+    class captureByRef_GeneratedObject
+    {
+    public:
+      captureByRef_GeneratedObject(int & aX, int & aY)
+        : x(aX), y(aY)
+      {}
+
+      void operator()()
+      {
+        int res = x * y;
+        cout << "captureByRef_GeneratedObject(): X * Y = " << res << endl;
+      }
+    private:
+      int& x, &y;
+    };
+
+    captureByRef_GeneratedObject go(x, y);
+    go();
+
     cout << endl;
+    /////////////////////////////////////////////////////////////////////////
 
     //mutableLambda
     auto mutableLambda = [x = 8]() mutable
@@ -228,10 +249,24 @@ int main()
     auto res4 = OldStyleFcn("Str1", "Str2", lambdaAsPointer);
     cout << "OldStyleFcn() returned:" << res4 << endl;
 
+    //deriveFromLambda
+    auto baseLambda = [](const string& aText) { return aText.size(); };
+
+    class Derived : public  decltype(baseLambda)
+    {
+    public:
+      int x;
+    };
+
+    Derived d;
+    auto res5 = d("012345");
+    cout << "Lambda called from derived returned: " << res5 << endl;
+
 
 
     cout << endl << endl;
-        
+
+    /// ////////////////////////////////////////////////////////////////////
 
     std::cout << endl;
     nesting_lambda_expressions();
